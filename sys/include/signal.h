@@ -3,6 +3,9 @@
  * All rights reserved.  The Berkeley software License Agreement
  * specifies the terms and conditions for redistribution.
  */
+#ifndef _SYS_SIGNAL_H_
+#define _SYS_SIGNAL_H_
+
 #ifndef NSIG
 #include <sys/types.h>
 
@@ -185,3 +188,5 @@ int     sigsuspend (const sigset_t *mask);
 #endif /* KERNEL */
 
 #endif /* NSIG */
+
+#endif

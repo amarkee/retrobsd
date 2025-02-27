@@ -16,6 +16,9 @@
  * 28 of the di_addr address bytes are used; 7 addresses of 4
  * bytes each: 4 direct (4Kb directly accessible) and 3 indirect.
  */
+#ifndef _SYS_INODE_H_
+#define _SYS_INODE_H_
+
 #define NDADDR      4                   /* direct addresses in inode */
 #define NIADDR      3                   /* indirect addresses in inode */
 #define NADDR       (NDADDR + NIADDR)   /* total addresses in inode */
@@ -433,3 +436,5 @@ struct vattr {
         (ip)->i_flag &= ~(IACC|IUPD|ICHG); \
     } \
 }
+
+#endif

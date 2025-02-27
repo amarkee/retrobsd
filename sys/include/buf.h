@@ -28,6 +28,8 @@
  * We only need three words for these, so this abbreviated
  * definition saves some space.
  */
+#ifndef _SYS_BUF_H_
+#define _SYS_BUF_H_
 struct bufhd
 {
     int     b_flags;                /* see defines below */
@@ -225,3 +227,5 @@ int geterror (struct buf *bp);
     (bp)->b_flags |= B_BUSY; \
     splx(x); \
 }
+
+#endif
