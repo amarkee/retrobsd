@@ -142,9 +142,8 @@ void
 eoftn(struct interpass_prolog * ipp)
 {
 	int i, j;
-	int addto;
 
-	addto = offcalc(ipp);
+	offcalc(ipp);
 
 	if (ipp->ipp_ip.ip_lbl == 0)
 		return;		/* no code needs to be generated */
@@ -919,7 +918,6 @@ upput(NODE * p, int size)
 void
 adrput(FILE * io, NODE * p)
 {
-	int r;
 	/* output an address, with offsets, from p */
 
 	if (p->n_op == FLD)
@@ -935,7 +933,6 @@ adrput(FILE * io, NODE * p)
 		return;
 
 	case OREG:
-		r = p->n_rval;
 
 		if (p->n_lval)
 			fprintf(io, "%d", (int) p->n_lval);

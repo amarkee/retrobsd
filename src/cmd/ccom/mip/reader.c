@@ -73,8 +73,6 @@
 
 /*	some storage declarations */
 int nrecur;
-int lflag;
-int x2debug, udebug, odebug;
 int thisline;
 int fregs;
 int p2autooff, p2maxautooff;

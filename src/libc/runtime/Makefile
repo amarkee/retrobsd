@@ -28,12 +28,16 @@ OBJS            = adddf3.o \
                   divsf3.o \
                   extendsfdf2.o \
                   fixdfsi.o \
+                  fixdfdi.o \
                   fixsfsi.o \
                   fixunssfsi.o \
                   fixunsdfsi.o \
+                  floatdidf.o \
                   floatsidf.o \
                   floatsisf.o \
+                  floatundidf.o \
                   floatunsisf.o \
+                  floatunsidf.o \
                   fp_mode.o \
                   moddi3.o \
                   muldf3.o \
@@ -43,8 +47,7 @@ OBJS            = adddf3.o \
                   truncdfsf2.o \
                   udivdi3.o \
                   udivmoddi4.o \
-                  umoddi3.o \
-		  floatunsidf.o
+                  umoddi3.o
 
 runtime.a:      ${OBJS}
 		@echo "buiding runtime.a"
