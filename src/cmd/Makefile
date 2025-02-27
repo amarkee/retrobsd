@@ -10,7 +10,7 @@ CFLAGS          += -Werror
 
 # Programs that live in subdirectories, and have makefiles of their own.
 # /bin
-SUBDIR		= adb adc-demo aout ar as awk basic calendar cc chflags \
+SUBDIR		= adb adc-demo aout ar as awk basic calendar cc ccom chflags \
                   chpass cpp dc diff emg env fdisk find fold forth \
                   fstat glcdtest hostname id la lcc lcpp ld ls login make \
                   man md5 med more nm passwd pdc picoc portio printf pwm \
@@ -24,7 +24,7 @@ SUBDIR         += chown chroot disktool fsck getty init \
                   mkfs mknod mkpasswd mount pstat \
                   reboot shutdown umount update vipw
 
-# TODO: ccom lex m4 reloc sre pforth
+# TODO: lex m4 reloc sre pforth
 
 # Shell scripts that need only be installed and are never removed.
 #

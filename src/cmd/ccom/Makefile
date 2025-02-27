@@ -8,8 +8,8 @@ include $(TOPSRC)/target.mk
 
 ARCHDIR         = arch-mips
 MIPDIR          = mip
-CFLAGS          += -DGCC_COMPAT -DPCC_DEBUG -D_ISOC99_SOURCE -DYY_NO_INPUT -Dmach_mips -I. -I${MIPDIR} -I${ARCHDIR}
-CFLAGS		+= -g -Werror -Wall
+LOCAL_CFLAGS    = -DGCC_COMPAT -DPCC_DEBUG -D_ISOC99_SOURCE -DYY_NO_INPUT -Dmach_mips -I. -I${MIPDIR} -I${ARCHDIR}
+CFLAGS		+= $(LOCAL_CFLAGS) -Werror -Wall
 LDFLAGS		+= -g
 
 OBJS1           = optim.o pftn.o scan.o trees.o cgram.o inline.o symtabs.o \
@@ -77,7 +77,7 @@ compat.o: $(MIPDIR)/compat.c external.h
 		$(CC) $(CFLAGS) -c -o $@ $(MIPDIR)/compat.c
 
 external.h external.c: ${MIPDIR}/mkext.c $(ARCHDIR)/table.c
-		gcc $(CFLAGS) -DMKEXT -o mkext ${MIPDIR}/mkext.c $(ARCHDIR)/table.c ${MIPDIR}/common.c
+		gcc $(LOCAL_CFLAGS) -DMKEXT -o mkext ${MIPDIR}/mkext.c $(ARCHDIR)/table.c ${MIPDIR}/common.c
 		./mkext
 
 trees.c: 	mip/pass2.h external.h

@@ -223,7 +223,6 @@ L?\"(\\.|[^\\"])*\"	{ yylval.strp = yytext; return C_STRING; }
 
 %%
 
-int lineno;
 char *ftitle = "<stdin>";
 
 int
