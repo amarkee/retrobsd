@@ -5,7 +5,8 @@
  *
  *  @(#)times.h 7.1 (Berkeley) 6/4/86
  */
-
+#ifndef _SYS_TIMES_H_
+#define _SYS_TIMES_H_
 /*
  * Structure returned by times()
  */
@@ -17,3 +18,5 @@ struct tms {
 };
 
 int times(struct tms *buf);
+
+#endif

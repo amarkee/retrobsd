@@ -31,6 +31,8 @@
  * comes into existence when the kernel is loaded and hence cannot be
  * patched by a stalking hacker.
  */
+#ifndef _SYS_SYSTM_H_
+#define _SYS_SYSTM_H_
 #include "conf.h"
 
 extern int securelevel;         /* system security level */
@@ -75,7 +77,7 @@ extern  const char initflags[];     /* init flags string */
 struct inode;
 daddr_t bmap (struct inode *ip, daddr_t bn, int rwflg, int flags);
 
-extern void kmemdev();
+void kmemdev(void);
 
 /*
  * Structure of the system-entry table
@@ -237,7 +239,7 @@ void    vfork (void);           /* awaiting fork w/ copy on write */
 struct buf;
 struct uio;
 
-void cninit();
+void cninit(void);
 int cnopen (dev_t dev, int flag, int mode);
 int cnclose (dev_t dev, int flag, int mode);
 int cnread (dev_t dev, struct uio *uio, int flag);
@@ -268,3 +270,5 @@ int logselect (dev_t dev, int rw);
 
 int fdopen (dev_t dev, int flag, int mode);
 int dupfdopen (int indx, int dfd, int mode, int error);
+
+#endif

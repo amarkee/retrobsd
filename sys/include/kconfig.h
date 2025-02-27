@@ -34,7 +34,8 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
+#ifndef _SYS_KCONFIG_H_
+#define _SYS_KCONFIG_H_
 /*
  * This structure is used to encapsulate the routines for a device driver.
  * This allows an "object oriented" approach so a controller device driver
@@ -94,4 +95,6 @@ struct conf_service {
 extern struct conf_ctlr conf_ctlr_init[];
 extern struct conf_device conf_device_init[];
 extern struct conf_service conf_service_init[];
+#endif
+
 #endif
