@@ -260,7 +260,7 @@ startup()
     CHECONSET = 0x30;
 
     /* Disable JTAG port, to use it for i/o. */
-    DDPCON = 0;
+    // DDPCON = 0;
 
     /* Use all B ports as digital. */
     AD1PCFG = ~0;

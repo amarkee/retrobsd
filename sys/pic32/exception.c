@@ -16,7 +16,7 @@
 //#define TRACE_EXCEPTIONS
 
 #ifdef POWER_ENABLED
-extern void power_switch_check();
+extern void power_switch_check(void);
 #endif
 
 /*
