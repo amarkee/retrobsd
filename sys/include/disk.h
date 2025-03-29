@@ -23,11 +23,12 @@
  */
 #ifndef _SYS_DISK_H_
 #define _SYS_DISK_H_
-
+#include "ioctl.h"
 /*
  * IBM PC compatible partition table.
  */
 #define MAXPARTITIONS   4
+#define MBR_MAGIC       0xAA55
 
 struct diskpart {                   /* the partition table */
     u_char      dp_status;          /* active (bootable) flag */

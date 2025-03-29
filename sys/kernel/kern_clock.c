@@ -36,7 +36,7 @@ int  dk_n;                  /* number of dk numbers assigned so far */
  */
 /*ARGSUSED*/
 static void
-gatherstats(caddr_t pc, int ps)
+gatherstats(int ps)
 {
     register int cpstate;
 
@@ -220,7 +220,7 @@ hardclock(caddr_t pc, int ps)
     }
 
 #ifdef UCB_METER
-    gatherstats (pc, ps);
+    gatherstats (ps);
 #endif
 
     /*

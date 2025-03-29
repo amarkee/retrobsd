@@ -1,0 +1,85 @@
+#
+# Makefile for DiscoBSD, stm32 target
+#
+# DEBUG is set to -g by kconfig if debugging is requested (kconfig -g).
+#
+include ../gcc-config.mk
+
+# sources are located via $S relative to the compilation directory
+S=		../..
+
+INCLUDES=	-nostdlib -I.
+DEPFLAGS=	-MT $@ -MP -MD -MF .deps/$*.dep
+DEFS=		${INCLUDES} ${PARAM} -DKERNEL ${DEPFLAGS}
+CWARNFLAGS=	-Wall
+
+CMACHCPU=	-mcpu=cortex-m4
+CMACHFLAGS=	-ffreestanding -fno-builtin -fcommon
+CMACHFLAGS+=	-mfloat-abi=soft
+CMACHFLAGS+=	-mthumb -mabi=aapcs -mlittle-endian
+CMACHFLAGS+=	${CMACHCPU}
+
+COPTS?=		-O
+CFLAGS=		${DEBUG} ${CWARNFLAGS} ${CMACHFLAGS} ${COPTS}
+AFLAGS=		-x assembler-with-cpp ${CWARNFLAGS} ${CMACHFLAGS}
+LDFLAGS=	-T ../${LDSCRIPT} -T ../ld.script -Map=$@.map
+LDADD=		${LIBGCC}
+
+# compile rules: rules are named COMPILE_${SUFFIX}
+# SUFFIX is the file suffix, capitalized (e.g. C for a .c file).
+
+COMPILE_C=	${CC} ${CFLAGS} ${DEFS} -c $<
+COMPILE_S=	${AS} ${AFLAGS} ${DEFS} -c $<
+
+%OBJS
+
+%CFILES
+
+# load lines for config "xxx" will be emitted as:
+# xxx: ${SYSTEM_DEP} swapxxx.o
+#	${SYSTEM_LD_HEAD}
+#	${SYSTEM_LD} swapxxx.o
+#	${SYSTEM_LD_TAIL}
+SYSTEM_OBJ=	locore.o startup_stm32f407xx.o ${OBJS} ioconf.o
+SYSTEM_DEP=	Makefile ioconf.c machine sys .deps ${SYSTEM_OBJ}
+SYSTEM_LD_HEAD=	sh $S/stm32/newvers.sh > vers.c; ${CC} ${CFLAGS} -c vers.c; rm -f $@
+SYSTEM_LD=	-@echo ${LD} ${LDFLAGS} '$${SYSTEM_OBJ}' vers.o -o $@ ${LDADD}; \
+		${LD} ${LDFLAGS} ${SYSTEM_OBJ} vers.o -o $@ ${LDADD}
+SYSTEM_LD_TAIL=	${SIZE} $@; cp $@ $@.elf; \
+		${OBJCOPY} -O ihex $@ $@.hex; \
+		${OBJCOPY} -O binary $@ $@.bin; \
+		${OBJDUMP} -d -S $@ > $@.dis
+
+%LOAD
+
+clean:
+	rm -rf .deps unix *.elf *.o *.map *.dis *.bin *.hex machine sys
+
+clean-all: clean
+	rm -f *.h ioconf.c swap*.c vers.c
+
+reconfig ioconf.c: Config ../../../tools/kconfig/kconfig
+	../../../tools/kconfig/kconfig -g Config
+	${MAKE} clean
+
+machine:
+	ln -s .. $@
+
+sys:
+	ln -s ../../include $@
+
+.deps:
+	mkdir .deps
+
+locore.o: ../locore.S
+	${COMPILE_S}
+
+startup_stm32f407xx.o: ../startup_stm32f407xx.s
+	${COMPILE_S}
+
+ioconf.o: ioconf.c
+	${COMPILE_C}
+
+%RULES
+
+-include .deps/*.dep

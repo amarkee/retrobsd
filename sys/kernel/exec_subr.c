@@ -15,6 +15,7 @@
 #include <sys/dir.h>
 #include <sys/uio.h>
 #include <machine/debug.h>
+#include <machine/frame.h>
 
 /*
  * How memory is set up.
@@ -22,7 +23,7 @@
  * var a:
  * USER_DATA_END: !----------!
  *                ! +P_ssize ! stack
- * p_saddr ->     ¡----------!
+ * p_saddr ->     !----------!
  *
  *                !----------!
  *                ! +P_dsize ! .data + .bss + heap
@@ -32,7 +33,7 @@
  *
  * USER_DATA_END: !--------!
  *                ! +ssize ! stack
- * saddr ->       ¡--------!
+ * saddr ->       !--------!
  *                ! +hsize ! heap
  * haddr ->       !--------!
  *                ! +dsize ! .data + .bss
@@ -46,7 +47,7 @@
  *                ! +tsize ! .text (read only section)
  * taddr ->       !--------!
  *                ! +ssize ! stack
- * saddr ->       ¡--------!
+ * saddr ->       !--------!
  *                ! +hsize ! heap
  * haddr ->       !--------!
  *                ! +dsize ! .data + .bss
@@ -79,10 +80,10 @@
  *              [argn]      ptr to argn
  *               ...
  *  argp ->     [arg0]      ptr to arg0
- *               []
- *               []
- *               []
- *    sp ->      []
+ *               []       \
+ *               []       | 16 bytes for Mips
+ *               []       | 64 bytes for Arm
+ *    sp ->      []       /
  *
  */
 void exec_setupstack(unsigned entryaddr, struct exec_params *epp)
@@ -103,20 +104,33 @@ void exec_setupstack(unsigned entryaddr, struct exec_params *epp)
     ucp = (char *)((unsigned)topp - roundup(epp->envbc + epp->argbc,NBPW)); /* arg string space */
     envp = (char **)(ucp - (epp->envc+1)*NBPW); /* Make place for envp[...], +1 for the 0 */
     argp = envp - (epp->argc+1)*NBPW;           /* Make place for argv[...] */
-    u.u_frame [FRAME_SP] = (int)(argp-16);
-    u.u_frame [FRAME_R4] = epp->argc;           /* $a0 := argc */
-    u.u_frame [FRAME_R5] = (int)argp;           /* $a1 := argp */
-    u.u_frame [FRAME_R6] = (int)envp;           /* $a2 := env */
+//TODO: Splite up stack frame set up to platform
+#ifdef __mips__
+    u.u_frame->tf_sp = (int)(argp-16);
+    u.u_frame->tf_r4 = epp->argc;               /* $a0 := argc */
+    u.u_frame->tf_r5 = (int)argp;               /* $a1 := argp */
+    u.u_frame->tf_r6 = (int)envp;               /* $a2 := env */
+#elif __thumb2__ || __thumb__
+    u.u_frame->tf_sp = (int)(argp-0x40);        /* 0x40 for svc trap frame. */
+    u.u_frame->tf_r0 = epp->argc;               /* $a1 := argc */
+    u.u_rval         = epp->argc;               /* $a1 := argc via syscall() */
+    u.u_frame->tf_r1 = (int)argp;               /* $a2 := argp */
+    u.u_frame->tf_r2 = (int)envp;               /* $a3 := envp */
+
+    u.u_frame->tf_lr  = 0xffffffff;             /* lr, set -1 (reset value) */
+    u.u_frame->tf_psr = 0x01000000;             /* psr, Thumb state bit set */
+#else
+#error "set up top of stack for unknown architecture"
+#endif
+
     *topp = argp;                               /* for /bin/ps */
 
     /*
      * copy the arguments into the structure
      */
-    //nc = 0;
     for (i = 0; i < epp->argc; i++) {
         argp[i] = (caddr_t)ucp;
         if (copystr((caddr_t)epp->argp[i], (caddr_t)ucp, (caddr_t)topp-ucp, &len) == 0) {
-            //nc += len;
             ucp += len;
         }
     }
@@ -125,7 +139,6 @@ void exec_setupstack(unsigned entryaddr, struct exec_params *epp)
     for (i = 0; i < epp->envc; i++) {
         envp[i] = ucp;
         if (copystr((caddr_t)epp->envp[i], (caddr_t)ucp, (caddr_t)topp-ucp, &len) == 0) {
-            //nc += len;
             ucp += len;
         }
     }
@@ -137,8 +150,8 @@ void exec_setupstack(unsigned entryaddr, struct exec_params *epp)
         panic("exec check");
     }
 
-    u.u_frame [FRAME_PC] = entryaddr;
-    DEBUG("Setting up new PC=%#x\n", entryaddr);
+    u.u_frame->tf_pc = entryaddr;
+    DEBUG("\texec_setupstack(): new PC = %#x\n", entryaddr);
 
     /*
      * Remember file name for accounting.
@@ -377,33 +390,55 @@ void exec_clear(struct exec_params *epp)
     /*
      * Clear registers.
      */
-    u.u_frame [FRAME_R1] = 0;           /* $at */
-    u.u_frame [FRAME_R2] = 0;           /* $v0 */
-    u.u_frame [FRAME_R3] = 0;           /* $v1 */
-    u.u_frame [FRAME_R7] = 0;           /* $a3 */
-    u.u_frame [FRAME_R8] = 0;           /* $t0 */
-    u.u_frame [FRAME_R9] = 0;           /* $t1 */
-    u.u_frame [FRAME_R10] = 0;          /* $t2 */
-    u.u_frame [FRAME_R11] = 0;          /* $t3 */
-    u.u_frame [FRAME_R12] = 0;          /* $t4 */
-    u.u_frame [FRAME_R13] = 0;          /* $t5 */
-    u.u_frame [FRAME_R14] = 0;          /* $t6 */
-    u.u_frame [FRAME_R15] = 0;          /* $t7 */
-    u.u_frame [FRAME_R16] = 0;          /* $s0 */
-    u.u_frame [FRAME_R17] = 0;          /* $s1 */
-    u.u_frame [FRAME_R18] = 0;          /* $s2 */
-    u.u_frame [FRAME_R19] = 0;          /* $s3 */
-    u.u_frame [FRAME_R20] = 0;          /* $s4 */
-    u.u_frame [FRAME_R21] = 0;          /* $s5 */
-    u.u_frame [FRAME_R22] = 0;          /* $s6 */
-    u.u_frame [FRAME_R23] = 0;          /* $s7 */
-    u.u_frame [FRAME_R24] = 0;          /* $t8 */
-    u.u_frame [FRAME_R25] = 0;          /* $t9 */
-    u.u_frame [FRAME_FP] = 0;
-    u.u_frame [FRAME_RA] = 0;
-    u.u_frame [FRAME_LO] = 0;
-    u.u_frame [FRAME_HI] = 0;
-    u.u_frame [FRAME_GP] = 0;
+// TOODO: Move frame register clear to platform
+#ifdef __mips__
+    u.u_frame->tf_r1  = 0;              /* $at */
+    u.u_frame->tf_r2  = 0;              /* $v0 */
+    u.u_frame->tf_r3  = 0;              /* $v1 */
+    u.u_frame->tf_r7  = 0;              /* $a3 */
+    u.u_frame->tf_r8  = 0;              /* $t0 */
+    u.u_frame->tf_r9  = 0;              /* $t1 */
+    u.u_frame->tf_r10 = 0;              /* $t2 */
+    u.u_frame->tf_r11 = 0;              /* $t3 */
+    u.u_frame->tf_r12 = 0;              /* $t4 */
+    u.u_frame->tf_r13 = 0;              /* $t5 */
+    u.u_frame->tf_r14 = 0;              /* $t6 */
+    u.u_frame->tf_r15 = 0;              /* $t7 */
+    u.u_frame->tf_r16 = 0;              /* $s0 */
+    u.u_frame->tf_r17 = 0;              /* $s1 */
+    u.u_frame->tf_r18 = 0;              /* $s2 */
+    u.u_frame->tf_r19 = 0;              /* $s3 */
+    u.u_frame->tf_r20 = 0;              /* $s4 */
+    u.u_frame->tf_r21 = 0;              /* $s5 */
+    u.u_frame->tf_r22 = 0;              /* $s6 */
+    u.u_frame->tf_r23 = 0;              /* $s7 */
+    u.u_frame->tf_r24 = 0;              /* $t8 */
+    u.u_frame->tf_r25 = 0;              /* $t9 */
+    u.u_frame->tf_fp  = 0;
+    u.u_frame->tf_ra  = 0;
+    u.u_frame->tf_lo  = 0;
+    u.u_frame->tf_hi  = 0;
+    u.u_frame->tf_gp  = 0;
+#elif __thumb2__ || __thumb__
+    u.u_frame->tf_r0  = 0;              /* a1 */
+    u.u_frame->tf_r1  = 0;              /* a2 */
+    u.u_frame->tf_r2  = 0;              /* a3 */
+    u.u_frame->tf_r3  = 0;              /* a4 */
+    u.u_frame->tf_ip  = 0;              /* sp, as passed as ip */
+    u.u_frame->tf_lr  = 0;              /* lr */
+    u.u_frame->tf_pc  = 0;              /* pc */
+    u.u_frame->tf_psr = 0;              /* psr */
+    u.u_frame->tf_r4  = 0;              /* v1 */
+    u.u_frame->tf_r5  = 0;              /* v2 */
+    u.u_frame->tf_r6  = 0;              /* v3 */
+    u.u_frame->tf_r7  = 0;              /* v4 */
+    u.u_frame->tf_r8  = 0;              /* v5 */
+    u.u_frame->tf_r9  = 0;              /* v6 */
+    u.u_frame->tf_r10 = 0;              /* v7 */
+    u.u_frame->tf_r11 = 0;              /* v8 */
+#else
+#error "clear trap frame registers for unknown architecture"
+#endif
 
     execsigs (u.u_procp);
 

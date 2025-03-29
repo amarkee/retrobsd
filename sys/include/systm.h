@@ -38,6 +38,9 @@
 extern int securelevel;         /* system security level */
 
 extern const char version[];    /* system version */
+extern const char ostype[];     /* operating system name */
+extern const char osversion[];  /* operating system version */
+extern const char osrelease[];  /* operating system release */
 
 /*
  * Nblkdev is the number of entries (rows) in the block switch.
@@ -73,6 +76,23 @@ extern dev_t    pipedev;            /* pipe device */
 extern  const char icode[];         /* user init code */
 extern  const char icodeend[];      /* its end */
 extern  const char initflags[];     /* init flags string */
+
+#ifdef PIC32MX7 /* XXX PIC32 */
+#define __kernel_flash_start        KERNEL_FLASH_START
+#define __kernel_flash_end          KERNEL_FLASH_END
+#define __kernel_data_start         KERNEL_DATA_START
+#define __kernel_data_end           KERNEL_DATA_END
+#define __user_data_start           USER_DATA_START
+#define __user_data_end             USER_DATA_END
+#else
+/* Memory address symbols defined in kernel linker script. */
+extern char     __kernel_flash_start[];
+extern char     __kernel_flash_end[];
+extern char     __kernel_data_start[];
+extern char     __kernel_data_end[];
+extern char     __user_data_start[];
+extern char     __user_data_end[];
+#endif /* XXX PIC32 */
 
 struct inode;
 daddr_t bmap (struct inode *ip, daddr_t bn, int rwflg, int flags);

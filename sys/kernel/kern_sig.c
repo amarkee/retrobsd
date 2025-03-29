@@ -690,3 +690,42 @@ execsigs(register struct proc *p)
     u.u_sigstk.ss_base = 0;
     u.u_psflags = 0;
 }
+
+/*
+ * nonexistent system call-- signal process (may want to handle it)
+ * flag error if process won't see signal immediately
+ * Q: should we do that all the time ??
+ */
+void
+nosys()
+{
+    if (u.u_signal[SIGSYS] == SIG_IGN || u.u_signal[SIGSYS] == SIG_HOLD)
+        u.u_error = EINVAL;
+    psignal(u.u_procp, SIGSYS);
+}
+
+void
+userret(int pc, time_t syst)
+{
+    int psig;
+
+    /* Process all received signals. */
+    for (;;) {
+        psig = CURSIG(u.u_procp);
+        if (psig <= 0)
+            break;
+        postsig(psig);
+    }
+    curpri = setpri(u.u_procp);
+
+    /* Switch to another process. */
+    if (runrun) {
+        setrq(u.u_procp);
+        u.u_ru.ru_nivcsw++;
+        swtch();
+    }
+
+    /* Update profiling information. */
+    if (u.u_prof.pr_scale)
+        addupc((caddr_t)pc, &u.u_prof, (int)(u.u_ru.ru_stime - syst));
+}

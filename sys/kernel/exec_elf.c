@@ -103,14 +103,14 @@ exec_elf_check(struct exec_params *epp)
      * Check that this is an ELF file that we can handle,
      * and do some sanity checks on the header
      */
-    if (epp->hdr_len < sizeof(struct elf_ehdr))
+    if (epp->hdr_len < (int)sizeof(struct elf_ehdr))
         return ENOEXEC;
-    for (i = 0; i < sizeof elfident; i++)
+    for (i = 0; i < (int)sizeof(elfident); i++)
         if (epp->hdr.elf.e_ident[i] !=  elfident[i])
             return ENOEXEC;
     if (epp->hdr.elf.e_type != ET_EXEC)
         return ENOEXEC;
-    if (epp->hdr.elf.e_machine != EM_MIPS || epp->hdr.elf.e_version != EV_CURRENT)
+    if (epp->hdr.elf.e_machine != ELF32_MACHDEP_ID || epp->hdr.elf.e_version != EV_CURRENT)
         return ENOEXEC;
     if (epp->hdr.elf.e_phentsize != sizeof(struct elf_phdr) || epp->hdr.elf.e_phoff == 0 || epp->hdr.elf.e_phnum == 0)
         return ENOEXEC;

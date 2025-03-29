@@ -93,7 +93,7 @@ struct  proc {
 #define X_FREECORE      1       /* free core space after swap */
 
 #ifdef KERNEL
-extern struct proc *pidhash[];
+extern struct proc *pidhash[PIDHSZ];
 extern struct proc proc[];              /* the proc table itself */
 extern struct proc *freeproc, *zombproc, *allproc, *qs;
                                         /* lists of procs in various states */
@@ -273,6 +273,7 @@ void fatalsig (int signum);
 int procxmt (void);
 
 void execsigs(register struct proc *p);
+void userret(int, time_t);
 
 #endif /* KERNEL */
 

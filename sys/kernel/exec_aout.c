@@ -20,7 +20,7 @@ int exec_aout_check(struct exec_params *epp)
 {
     int error;
 
-    if (epp->hdr_len < sizeof(struct exec))
+    if (epp->hdr_len < (int)sizeof(struct exec))
         return ENOEXEC;
     if (!(N_GETMID(epp->hdr.aout) == MID_ZERO &&
           N_GETFLAG(epp->hdr.aout) == 0))

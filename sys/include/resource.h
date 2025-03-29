@@ -12,7 +12,7 @@
 /*
  * Process priority specifications to get/setpriority.
  */
-#define PRIO_MIN        -20
+#define PRIO_MIN        (-20)
 #define PRIO_MAX        20
 
 #define PRIO_PROCESS    0
@@ -24,7 +24,7 @@
  */
 
 #define RUSAGE_SELF     0
-#define RUSAGE_CHILDREN -1
+#define RUSAGE_CHILDREN (-1)
 
 struct  rusage {
     struct timeval  ru_utime;       /* user time used */

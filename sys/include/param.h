@@ -8,7 +8,7 @@
 
 #define BSD     211 /* 2.11 * 100, as cpp doesn't do floats */
 
-#ifndef offsetof
+#if !defined(offsetof) && defined(KERNEL)
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
 
@@ -79,7 +79,7 @@
 #define MAXBSIZE    1024
 
 /*
- * MAXPATHLEN defines the longest permissable path length
+ * MAXPATHLEN defines the longest permissible path length
  * after expanding symbolic links. It is used to allocate
  * a temporary buffer from the buffer pool in which to do the
  * name expansion, hence should be a power of two, and must
@@ -120,7 +120,9 @@
 /*
  * MAXMEM is the maximum core per process is allowed.  First number is Kb.
 */
+#ifndef MAXMEM
 #define MAXMEM      (96*1024)
+#endif
 
 /*
  * Max length of a user login name.

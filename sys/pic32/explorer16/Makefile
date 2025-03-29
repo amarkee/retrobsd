@@ -34,7 +34,7 @@ AS              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 ${DEBUG}
 CC              =  -mabi=o32 -mfloat-abi=soft \
                   -nostdinc -fshort-double -fomit-frame-pointer -finline-hint-functions -I$(TOPSRC)/include
 CC              = $(LLVMBIN)clang -target mipsel -mcpu=mips32r2 -mabi=o32 -mfloat-abi=soft \
-                  ${DEBUG} -nostdinc -fno-builtin -Werror -Wall
+                  ${DEBUG} -nostdinc -fno-builtin -Wall -Werror
 CPP             = $(LLVMBIN)clang-cpp
 LD              = $(LLVMBIN)ld.lld -m elf32ltsmip
 LDFLAGS         = -nostdlib -T ../${LDSCRIPT}

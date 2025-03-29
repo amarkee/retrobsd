@@ -6,6 +6,8 @@
 
 #define ARCH_ELFSIZE            32      /* MD native binary size */
 
+#define	ELF32_MACHDEP_ID	EM_MIPS
+
 /* mips relocs.  */
 
 #define R_MIPS_NONE             0

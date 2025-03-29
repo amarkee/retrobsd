@@ -191,6 +191,7 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, s
 
     switch (name[0]) {
     case KERN_OSTYPE:
+        return (sysctl_rdstring(oldp, oldlenp, newp, ostype));
     case KERN_OSRELEASE:
         /* code is cheaper than D space */
         bsd[0]='2';bsd[1]='.';bsd[2]='1';bsd[3]='1';bsd[4]='B';
@@ -198,6 +199,8 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, s
         return (sysctl_rdstring(oldp, oldlenp, newp, bsd));
     case KERN_OSREV:
         return (sysctl_rdlong(oldp, oldlenp, newp, (long)BSD));
+    case KERN_OSVERSION:
+        return (sysctl_rdstring(oldp, oldlenp, newp, osversion));
     case KERN_VERSION:
         return (sysctl_rdstring(oldp, oldlenp, newp, version));
     case KERN_MAXINODES:
@@ -263,15 +266,16 @@ kern_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, s
 int
 hw_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen)
 {
+    extern char machine[], machine_arch[], cpu_model[];
     /* all sysctl names at this level are terminal */
     if (namelen != 1)
         return (ENOTDIR);       /* overloaded */
 
     switch (name[0]) {
     case HW_MACHINE:
-        return (sysctl_rdstring(oldp, oldlenp, newp, "pic32"));
+        return (sysctl_rdstring(oldp, oldlenp, newp, machine));
     case HW_MODEL:
-        return (sysctl_rdstring(oldp, oldlenp, newp, "mips"));
+        return (sysctl_rdstring(oldp, oldlenp, newp, cpu_model));
     case HW_NCPU:
         return (sysctl_rdint(oldp, oldlenp, newp, 1));  /* XXX */
     case HW_BYTEORDER:
@@ -284,6 +288,8 @@ hw_sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, siz
 #endif
     case HW_PAGESIZE:
         return (sysctl_rdint(oldp, oldlenp, newp, DEV_BSIZE));
+    case HW_MACHINE_ARCH:
+        return (sysctl_rdstring(oldp, oldlenp, newp, machine_arch));
     default:
         return (EOPNOTSUPP);
     }

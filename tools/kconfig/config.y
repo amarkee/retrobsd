@@ -168,6 +168,9 @@ Config_spec:
             if (strcmp($2, "pic32") == 0) {
                 arch = ARCH_PIC32;
                 archname = "pic32";
+            } else if (strcmp($2, "stm32") == 0) {
+                arch = ARCH_STM32;
+                archname = "stm32";
             } else
                 yyerror("Unknown architecture");
         }
@@ -788,6 +791,8 @@ void check_nexus(struct device *dev, int num)
     switch (arch) {
 
     case ARCH_PIC32:
+        break;
+    case ARCH_STM32:
         break;
     }
 }

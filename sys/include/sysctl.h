@@ -132,7 +132,8 @@ struct ctlname {
 #define KERN_MAXTEXTS       22  /* int: # of text entries */
 #define KERN_TEXT           23  /* struct: text entries */
 #define KERN_ACCTTHRESH     24  /* int: accounting daemon threshold */
-#define KERN_MAXID          25  /* number of valid kern ids */
+#define KERN_OSVERSION      25  /* string: kernel build version */
+#define KERN_MAXID          26  /* number of valid kern ids */
 
 #ifndef KERNEL
 #define CTL_KERN_NAMES { \
@@ -161,6 +162,7 @@ struct ctlname {
     { "maxtexts", CTLTYPE_INT }, \
     { "text", CTLTYPE_STRUCT }, \
     { "acctthresh", CTLTYPE_INT }, \
+    { "osversion", CTLTYPE_STRING }, \
 }
 #endif
 
@@ -216,7 +218,8 @@ struct  kinfo_file {
 #define HW_PAGESIZE     7       /* int: software page size */
 #define HW_DISKNAMES    8       /* strings: disk drive names */
 #define HW_DISKSTATS    9       /* struct: diskstats[] */
-#define HW_MAXID        10      /* number of valid hw ids */
+#define HW_MACHINE_ARCH 10      /* string: machine architecture */
+#define HW_MAXID        11      /* number of valid hw ids */
 
 #ifndef KERNEL
 #define CTL_HW_NAMES { \
@@ -230,6 +233,7 @@ struct  kinfo_file {
     { "pagesize", CTLTYPE_INT }, \
     { "disknames", CTLTYPE_STRUCT }, \
     { "diskstats", CTLTYPE_STRUCT }, \
+    { "machine_arch", CTLTYPE_STRING }, \
 }
 #endif
 
